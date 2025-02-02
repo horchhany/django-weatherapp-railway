@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,8 +29,14 @@ SECRET_KEY = 'django-insecure-6n=imp+^@4rlh=_a3a#bb=^dm-f1fjj8oes3*vifz^b$@#*j*m
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['django-weatherapp-inor.up.railway.app', '127.0.0.1']
-CSRF_TRUSTRED_ORIGIN = ['https://django-weatherapp-inor.up.railway.app']
+ALLOWED_HOSTS = [
+    "django-weatherapp-inor.up.railway.app",
+    "127.0.0.1",  # Local testing
+    "localhost"
+]
+CSRF_TRUSTED_ORIGINS = [
+    "https://django-weatherapp-inor.up.railway.app"
+]
 
 # Application definition
 
@@ -76,10 +86,6 @@ WSGI_APPLICATION = 'myiNor.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
 
 DATABASES = {
     'default': {
