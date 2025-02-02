@@ -74,12 +74,12 @@ WSGI_APPLICATION = 'myiNor.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-'''import os
+import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
-DATABASES = {
+'''DATABASES = {
     'default': {
         'ENGINE'  : 'django.db.backends.postgresql',
         'NAME'    : os.getenv('DB_NAME'),
@@ -138,6 +138,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
