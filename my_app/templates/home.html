@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+    Home Pages
+{% endblock title %}
+
+{% block content %}
+
+<div class="container">
+    <div class="card shadow">
+        <div class="card-header text-center bg-secondary text-white">
+            <form method="POST" class="row">
+                {% csrf_token %}
+                <div class="col-auto">
+                  <label for="inputcity" class="visually-hidden">City name</label>
+                  <input type="text" name="city" class="form-control" id="inputcity" placeholder="City name">
+                </div>
+                <div class="col-auto">
+                  <button type="submit" class="btn btn-dark mb-3">Add new city</button>
+                </div>
+            </form>
+        </div>
+        <!-- Weather card Container -->
+        
+    </div>
+    <div class="container">
+        <!-- Main Content -->
+        <div class="col-md-12">
+            <div class="row">
+                {% for weather in weather_data  %}
+                <div class="col-sm-2">
+                    <div class="card shadow-sm ">
+                        <div class="position-absolute  start-50 translate-middle">
+                            <img src="http://openweathermap.org/img/w/{{ weather.icon }}.png" style="width: 65px; " class="card-img-top center" alt="Card Image">
+                        </div>
+                        <div class="card-body">
+                            <h6 class="card-title" style="text-align: center;">{{weather.city}}</h6>
+                            <h4 class="card-text" style="text-align: center;">{{weather.temperature}} °C</h4>
+                            <p style="text-align: center;">{{ weather.local_time }}</p>
+                            <p style="text-align: center;">{{weather.description}}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>   
+        </div>  
+    </div>
+</div>
+{% endblock content %}
+    
