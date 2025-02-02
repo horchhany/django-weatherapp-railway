@@ -79,7 +79,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-'''DATABASES = {
+DATABASES = {
     'default': {
         'ENGINE'  : 'django.db.backends.postgresql',
         'NAME'    : os.getenv('DB_NAME'),
@@ -88,9 +88,9 @@ load_dotenv()
         'HOST'    : os.getenv('DB_HOST'),
         'POST'    : os.getenv('DB_PORT'),
     }
-}'''
+}
 
-DATABASES = {
+'''DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'railway',  # Check if the DB name matches Railway
@@ -100,7 +100,7 @@ DATABASES = {
         'PORT': '11159',  # Ensure this is NOT 5432
         'OPTIONS': {'sslmode': 'require'},  # Enable SSL if Railway requires it
     }
-}
+}'''
 
 
 # Password validation
