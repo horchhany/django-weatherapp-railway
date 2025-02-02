@@ -1,1 +1,1 @@
-web:gunicorn myiNor.wsgi
+web: gunicorn myiNor.wsgi
