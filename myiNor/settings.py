@@ -86,21 +86,9 @@ DATABASES = {
         'USER'    : os.getenv('DB_USER'),
         'PASSWORD': os.getenv('DB_PASSWORD'),
         'HOST'    : os.getenv('DB_HOST'),
-        'POST'    : os.getenv('DB_PORT'),
+        'PORT'    : os.getenv('DB_PORT'),
     }
 }
-
-'''DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'railway',  # Check if the DB name matches Railway
-        'USER': 'postgres',
-        'PASSWORD': 'wgNtoGbaDNBpLKruigBskzEBPSszpoIZ',  # Ensure it's correct
-        'HOST': 'viaduct.proxy.rlwy.net',
-        'PORT': '11159',  # Ensure this is NOT 5432
-        'OPTIONS': {'sslmode': 'require'},  # Enable SSL if Railway requires it
-    }
-}'''
 
 
 # Password validation
