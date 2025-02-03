@@ -6,6 +6,7 @@
 {% endblock title %}
 
 {% block content %}
+
 <div class="container weather-container">
     <!-- Search Bar -->
     <form method="POST">
@@ -18,15 +19,16 @@
 
     <!-- Weather Cards Grid -->
     <div class="row g-3">
-        {% for weather in weather_data  %}
-        <div class="col-md-4 col-lg-3">
-            <div class="weather-card">
-                <img src="http://openweathermap.org/img/w/{{ weather.icon }}.png" style="width: 65px; " class="card-img-top center" alt="Card Image">
-                <h6 style="text-align: center;">{{weather.city}}</h6>
-                <h4 style="text-align: center;">{{weather.temperature}} °C</h4>
-                <p style="text-align: center;">{{ weather.local_time }}</p>
-                <p style="text-align: center;">{{weather.description}}</p>
-            </div>
+        {% for weather in weather_data %}
+        <div class="col-md-4 col-lg-3 ">
+                <div class="weather-card"  id="weather-card-{{ weather.id }}">
+                    <button class="toggle-btn"  onclick="minimizeWeatherCard('{{ weather.id }}')">−</button>
+                    <img src="http://openweathermap.org/img/w/{{ weather.icon }}.png" style="width: 65px; " class="card-img-top center" alt="Card Image">
+                    <h6 style="text-align: center;">{{weather.city}}</h6>
+                    <h4 style="text-align: center;">{{weather.temperature}} °C</h4>
+                    <p style="text-align: center;">{{ weather.local_time }}</p>
+                    <p style="text-align: center;">{{weather.description}}</p>
+                </div>
         </div>
         {% endfor %}
     </div>

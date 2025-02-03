@@ -1,4 +1,4 @@
-from django.shortcuts import redirect, render, HttpResponse
+from django.shortcuts import redirect, render, HttpResponse, get_object_or_404
 from .models import Items, City
 import requests
 from datetime import datetime, timedelta
@@ -22,10 +22,15 @@ def home(request):
 
         # Check if city exists in the API
         if response['cod'] == 200:
-            if not City.objects.filter(name=city_name).exists():
-            #Save the new city to database
+            city = City.objects.filter(name=city_name).first()  # ✅ Get first matching record
+
+            if not city:
                 City.objects.create(name=city_name)
-                messages.success(request, f'{city_name} has been adding successfuly')
+                messages.success(request, f'{city_name} has been added successfully.')
+            elif not city.clear:  # If exists but "clear" is False, update it
+                city.clear = True
+                city.save()
+                messages.success(request, f'{city_name} was hidden, now visible again.')
             else:
                 messages.info(request, f'{city_name} already exists!')
         else:
@@ -34,7 +39,7 @@ def home(request):
     # Fetch weather data for all saved cities
     weather_data = []
     try:    
-        cities = City.objects.all()   #Get all cities from database
+        cities = City.objects.filter(clear=True)  # Get all cities with clear=True from the database
         for city in cities:
             response = requests.get(url.format(city.name, API_KEY)).json()
 
@@ -44,6 +49,7 @@ def home(request):
                 utc_now = datetime.utcnow()  # Current UTC time
                 local_time = utc_now + timedelta(seconds=timezone_offset)  # Convert to local time
                 city_weather = {
+                    'id'          : city.id,  # Ensure ID is passed
                     'city'        : city.name,
                     'temperature' : response['main']['temp'],
                     'description' : response['weather'][0]['description'],
@@ -60,6 +66,20 @@ def home(request):
     context = {'weather_data' : weather_data}
     return render(request, 'home.html', context)
 
+
+# View to update the clear status
+def update_clear(request, weather_id):
+    """Mark the city as minimized (clear=False) without deleting it."""
+    if request.method == 'POST':
+        try:
+            city = get_object_or_404(City, id=weather_id)
+            city.clear = False
+            city.save()
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request'})
 
 def items_pro(request):
     products = Items.objects.all()

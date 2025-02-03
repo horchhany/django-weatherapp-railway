@@ -43,15 +43,45 @@
           cursor: pointer;
       }
       .weather-card {
-          background: white;
-          border-radius: 10px;
-          padding: 15px;
-          box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-          text-align: center;
-      }
-      .weather-card img {
-          width: 40px;
-      }
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease-in-out;
+            overflow: hidden;
+        }
+        .weather-card img {
+            width: 40px;
+        }
+        .toggle-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.1);
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .toggle-btn:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+        .minimized {
+            height: 50px;
+            padding: 10px;
+            transition: height 0.3s ease-in-out;
+        }
+        .minimized .weather-details {
+            display: none;
+        }
   </style>
   <!---->
   </head>
@@ -65,28 +95,85 @@
         </form>
       </div>
     </nav>-->
-        {% if messages %}
-            {% for message  in messages %}
-              {% if message.tags == "success" %}
-                  <div class="alert alert-success" role="alert">
-                    {{ message }}
-                  </div>
-              {% elif message.tags == "info" %}
-                  <div class="alert alert-info" role="alert">
-                    {{ message }}
-                  </div>
-              {% else %}
-                  <div class="alert alert-danger" role="alert">
-                    {{ message }}
-                  </div>
-              {% endif %}
-            {% endfor %}
-  
-        {% endif %}
+    <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1050;"></div>
       {% block content %}
             Base Content
       {% endblock content %}
          
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-</body>
+    
+    <script>
+      function minimizeWeatherCard(weatherId) {
+          const weatherCard = document.getElementById('weather-card-' + weatherId);
+          if (weatherCard) {
+              // ✅ Apply smooth fade-out effect
+              weatherCard.style.transition = "opacity 0.2s ease-out";
+              weatherCard.style.opacity = 0;
+  
+              setTimeout(() => {
+                  weatherCard.remove(); // ✅ Remove after animation
+              }, 200);
+          }
+  
+          // ✅ Send request asynchronously to update DB
+          fetch(`/update_clear/${weatherId}/`, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRFToken': '{{ csrf_token }}'
+              },
+              body: JSON.stringify({ 'weather_id': weatherId })
+          })
+          .then(response => response.json())
+          .then(data => {
+              if (!data.success) {
+                  console.error('Error minimizing:', data.error);
+                  alert("Failed to minimize. Try again.");
+              }
+          })
+          .catch(error => {
+              console.error('Error:', error);
+              alert("Network issue. Try again.");
+          });
+      }
+
+      // Alert Message
+      function showToast(message, type = "success") {
+        let toastContainer = document.getElementById('toast-container');
+
+        let toastId = "toast-" + Date.now(); // Unique ID for each toast
+        let toastClass = type === "success" ? "bg-success" : type === "info" ? "bg-info" : "bg-danger";
+
+        let toastHTML = `
+            <div id="${toastId}" class="toast align-items-center text-white ${toastClass} border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        `;
+
+        toastContainer.innerHTML += toastHTML;
+
+        // Remove the toast after 3 seconds
+        setTimeout(() => {
+            let toast = document.getElementById(toastId);
+            if (toast) toast.remove();
+        }, 3000);
+    }
+
+    // Automatically show Django messages in the toast system
+    window.onload = function() {
+        {% if messages %}
+            {% for message in messages %}
+                showToast("{{ message }}", "{{ message.tags }}");
+            {% endfor %}
+        {% endif %}
+    };
+  </script>
+  
+  
+  </body>
 </html>
