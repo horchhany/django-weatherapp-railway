@@ -103,19 +103,40 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     
     <script>
+      let minimizeQueue = []; // Queue to store weather IDs
+      let isMinimizing = false; // Flag to track if an animation is running
+
       function minimizeWeatherCard(weatherId) {
-          const weatherCard = document.getElementById('weather-card-' + weatherId);
+          minimizeQueue.push(weatherId); // Add to queue
+          processQueue(); // Start queue processing
+      }
+
+      function processQueue() {
+          if (isMinimizing || minimizeQueue.length === 0) return; // Stop if busy or empty
+
+          isMinimizing = true;
+          let weatherId = minimizeQueue.shift(); // Take the first ID in the queue
+          let weatherCard = document.getElementById('weather-card-' + weatherId);
+
           if (weatherCard) {
-              // ✅ Apply smooth fade-out effect
-              weatherCard.style.transition = "opacity 0.2s ease-out";
+              // ✅ Apply smooth fade-out & shrink effect
+              weatherCard.style.transition = "opacity 0.4s ease-out, transform 0.3s ease-in-out";
               weatherCard.style.opacity = 0;
-  
+              weatherCard.style.transform = "translateY(-10px) scale(0.9)"; // Move up slightly
+
               setTimeout(() => {
-                  weatherCard.remove(); // ✅ Remove after animation
-              }, 200);
+                  weatherCard.remove(); // Remove after animation
+                  sendMinimizeRequest(weatherId); // ✅ Send request to update DB
+                  isMinimizing = false;
+                  processQueue(); // Continue queue
+              }, 400);
+          } else {
+              isMinimizing = false;
+              processQueue(); // Continue if element doesn't exist
           }
-  
-          // ✅ Send request asynchronously to update DB
+      }
+
+      function sendMinimizeRequest(weatherId) {
           fetch(`/update_clear/${weatherId}/`, {
               method: 'POST',
               headers: {
@@ -127,7 +148,7 @@
           .then(response => response.json())
           .then(data => {
               if (!data.success) {
-                  console.error('Error minimizing:', data.error);
+                  console.error('Error:', data.error);
                   alert("Failed to minimize. Try again.");
               }
           })
