@@ -83,6 +83,28 @@
       .minimized .weather-details {
         display: none;
       }
+      .weather-card {
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        border-radius: 10px;
+        overflow: hidden;
+        background: white;
+        padding: 15px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .weather-card:hover {
+        transform: scale(1.05); /* Slightly enlarge */
+        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); /* Bigger shadow */
+        cursor: pointer;
+      }
+
+      .weather-card:hover img {
+        transform: rotate(10deg) scale(1.1); /* Rotate & zoom effect */
+      }
+
+      .weather-card img {
+        transition: transform 0.3s ease-in-out;
+      }
     </style>
     <!---->
   </head>
