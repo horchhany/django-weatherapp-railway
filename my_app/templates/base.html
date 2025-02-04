@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -11,113 +12,9 @@
       crossorigin="anonymous"
     />
     <!-- Custom CSS -->
-    <style>
-      body {
-        background-color: #f8f9fa;
-      }
-      .weather-container {
-        max-width: 900px;
-        margin: auto;
-        padding: 20px;
-      }
-      .search-bar {
-        background: #4e5a65;
-        padding: 10px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-      }
-      .search-bar input {
-        flex: 1;
-        border: none;
-        padding: 8px;
-        border-radius: 4px;
-        outline: none;
-      }
-      .search-bar button {
-        margin-left: 10px;
-        background: black;
-        color: white;
-        border: none;
-        padding: 8px 15px;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-      .weather-card {
-        background: white;
-        border-radius: 10px;
-        padding: 15px;
-        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-        text-align: center;
-        position: relative;
-        transition: all 0.3s ease-in-out;
-        overflow: hidden;
-      }
-      .weather-card img {
-        width: 40px;
-      }
-      .toggle-btn {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: rgba(0, 0, 0, 0.1);
-        border: none;
-        border-radius: 50%;
-        width: 30px;
-        height: 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 18px;
-        cursor: pointer;
-        transition: 0.3s;
-      }
-      .toggle-btn:hover {
-        background: rgba(0, 0, 0, 0.3);
-      }
-      .minimized {
-        height: 50px;
-        padding: 10px;
-        transition: height 0.3s ease-in-out;
-      }
-      .minimized .weather-details {
-        display: none;
-      }
-      .weather-card {
-        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-        border-radius: 10px;
-        overflow: hidden;
-        background: white;
-        padding: 15px;
-        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-      }
-
-      .weather-card:hover {
-        transform: scale(1.05); /* Slightly enlarge */
-        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); /* Bigger shadow */
-        cursor: pointer;
-      }
-
-      .weather-card:hover img {
-        transform: rotate(10deg) scale(1.1); /* Rotate & zoom effect */
-      }
-
-      .weather-card img {
-        transition: transform 0.3s ease-in-out;
-      }
-    </style>
-    <!---->
+    <link rel="stylesheet" href="{% static 'css/weather.css' %}" />
   </head>
   <body>
-    <!--<nav class="navbar navbar-dark nav-fix bg-dark ">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="{%url 'home'%}">My Weather </a>
-        <form class="d-flex" role="search">
-          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-          <button class="btn btn-outline-success" type="submit">Search</button>
-        </form>
-      </div>
-    </nav>-->
     <div
       id="toast-container"
       class="position-fixed top-0 end-0 p-3"
@@ -132,96 +29,101 @@
     ></script>
 
     <script>
-        let minimizeQueue = []; // Queue to store weather IDs
-        let isMinimizing = false; // Flag to track if an animation is running
+      let minimizeQueue = []; // Queue to store weather IDs
+      let isMinimizing = false; // Flag to track if an animation is running
 
-        function minimizeWeatherCard(weatherId) {
-            minimizeQueue.push(weatherId); // Add to queue
-            processQueue(); // Start queue processing
-        }
-
-        function processQueue() {
-            if (isMinimizing || minimizeQueue.length === 0) return; // Stop if busy or empty
-
-            isMinimizing = true;
-            let weatherId = minimizeQueue.shift(); // Take the first ID in the queue
-            let weatherCard = document.getElementById('weather-card-' + weatherId);
-
-            if (weatherCard) {
-                // ✅ Apply smooth fade-out & shrink effect
-                weatherCard.style.transition = "opacity 0.4s ease-out, transform 0.3s ease-in-out";
-                weatherCard.style.opacity = 0;
-                weatherCard.style.transform = "translateY(-10px) scale(0.9)"; // Move up slightly
-
-                setTimeout(() => {
-                    weatherCard.remove(); // Remove after animation
-                    sendMinimizeRequest(weatherId); // ✅ Send request to update DB
-                    isMinimizing = false;
-                    processQueue(); // Continue queue
-                }, 400);
-            } else {
-                isMinimizing = false;
-                processQueue(); // Continue if element doesn't exist
-            }
-        }
-
-        function sendMinimizeRequest(weatherId) {
-            fetch(`/update_clear/${weatherId}/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: JSON.stringify({ 'weather_id': weatherId })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (!data.success) {
-                    console.error('Error:', data.error);
-                    alert("Failed to minimize. Try again.");
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert("Network issue. Try again.");
-            });
-        }
-
-        // Alert Message
-        function showToast(message, type = "success") {
-          let toastContainer = document.getElementById('toast-container');
-
-          let toastId = "toast-" + Date.now(); // Unique ID for each toast
-          let toastClass = type === "success" ? "bg-success" : type === "info" ? "bg-info" : "bg-danger";
-
-          let toastHTML = `
-              <div id="${toastId}" class="toast align-items-center text-white ${toastClass} border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
-                  <div class="d-flex">
-                      <div class="toast-body">
-                          ${message}
-                      </div>
-                      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                  </div>
-              </div>
-          `;
-
-          toastContainer.innerHTML += toastHTML;
-
-          // Remove the toast after 3 seconds
-          setTimeout(() => {
-              let toast = document.getElementById(toastId);
-              if (toast) toast.remove();
-          }, 3000);
+      function minimizeWeatherCard(weatherId) {
+        minimizeQueue.push(weatherId); // Add to queue
+        processQueue(); // Start queue processing
       }
 
-      // Automatically show Django messages in the toast system
-      window.onload = function() {
-        {% if messages %}
-            {% for message in messages %}
-                showToast("{{ message }}", "{{ message.tags }}");
-            {% endfor %}
-        {% endif %}
-      };
+      function processQueue() {
+        if (isMinimizing || minimizeQueue.length === 0) return; // Stop if busy or empty
+
+        isMinimizing = true;
+        let weatherId = minimizeQueue.shift(); // Take the first ID in the queue
+        let weatherCard = document.getElementById("weather-card-" + weatherId);
+
+        if (weatherCard) {
+          // ✅ Apply smooth fade-out & shrink effect
+          weatherCard.style.transition =
+            "opacity 0.4s ease-out, transform 0.3s ease-in-out";
+          weatherCard.style.opacity = 0;
+          weatherCard.style.transform = "translateY(-10px) scale(0.9)"; // Move up slightly
+
+          setTimeout(() => {
+            weatherCard.remove(); // Remove after animation
+            sendMinimizeRequest(weatherId); // ✅ Send request to update DB
+            isMinimizing = false;
+            processQueue(); // Continue queue
+          }, 400);
+        } else {
+          isMinimizing = false;
+          processQueue(); // Continue if element doesn't exist
+        }
+      }
+
+      function sendMinimizeRequest(weatherId) {
+        fetch(`/update_clear/${weatherId}/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}",
+          },
+          body: JSON.stringify({ weather_id: weatherId }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (!data.success) {
+              console.error("Error:", data.error);
+              alert("Failed to minimize. Try again.");
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("Network issue. Try again.");
+          });
+      }
+
+            // Alert Message
+            function showToast(message, type = "success") {
+              let toastContainer = document.getElementById("toast-container");
+
+              let toastId = "toast-" + Date.now(); // Unique ID for each toast
+              let toastClass =
+                type === "success"
+                  ? "bg-success"
+                  : type === "info"
+                  ? "bg-info"
+                  : "bg-danger";
+
+              let toastHTML = `
+                          <div id="${toastId}" class="toast align-items-center text-white ${toastClass} border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+                              <div class="d-flex">
+                                  <div class="toast-body">
+                                      ${message}
+                                  </div>
+                                  <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                              </div>
+                          </div>
+                      `;
+
+              toastContainer.innerHTML += toastHTML;
+
+              // Remove the toast after 3 seconds
+              setTimeout(() => {
+                let toast = document.getElementById(toastId);
+                if (toast) toast.remove();
+              }, 3000);
+            }
+                  // Automatically show Django messages in the toast system
+                  window.onload = function() {
+                    {% if messages %}
+                        {% for message in messages %}
+                            showToast("{{ message }}", "{{ message.tags }}");
+                        {% endfor %}
+                    {% endif %}
+                  };
     </script>
   </body>
 </html>
