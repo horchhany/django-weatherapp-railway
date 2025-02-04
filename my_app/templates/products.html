@@ -1,47 +1,37 @@
-{% extends 'base.html' %}
-
-
-{% block title %}
-    Products page
-{% endblock title %}
-
+{% extends 'base.html' %} {% block title %} Products page {% endblock title %}
 {% block content %}
 <div class="container">
-    <div class="card shadow">
-        <div class="card-header text-center bg-primary text-white">
-            <h2>Products List</h2>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered text-center">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>#</th>
-                            <th>Products</th>
-                            <th>Price</th>
-                            <th>Stock</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for product in my_items  %} 
-                        <tr>
-                            <th scope="row">{{product.id}}</th>
-                            <td> {{product.name}}</td>
-                            <td>${{product.price}}</td>
-                            <td>
-                                {% if product.in_stock %}
-                                    In Stock
-                                {% else %}
-                                    Out Stock
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+  <div class="card shadow">
+    <div class="card-header text-center bg-primary text-white">
+      <h2>Products List</h2>
     </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered text-center">
+          <thead class="table-dark">
+            <tr>
+              <th>#</th>
+              <th>Products</th>
+              <th>Price</th>
+              <th>Stock</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for product in my_items %}
+            <tr>
+              <th scope="row">{{product.id}}</th>
+              <td>{{product.name}}</td>
+              <td>${{product.price}}</td>
+              <td>
+                {% if product.in_stock %} In Stock {% else %} Out Stock {% endif
+                %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock content %}
-    
